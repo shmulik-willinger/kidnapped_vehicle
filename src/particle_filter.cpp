@@ -66,13 +66,34 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	}
 }
 
-// Find the predicted measurement that is closest to each observed measurement and assign the 
-//   observed measurement to this particular landmark.
+// Find the predicted measurement that is closest to each observed measurement and assign the observed measurement to this particular landmark.
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) 
 {
+	int observations_size = observations.size();
+	for (int i = 0; i < observations_size; i++)
+	{
+		// id of landmark from map placeholder to be associated with the observation
+		int mapId = -1;
 
+		// maximum possible distance
+		double min_dist = numeric_limits<double>::max();
 
+		LandmarkObs observation = observations[i];
+		int predictions_size = predicted.size();
+		for (int j = 0; j < predictions_size; j++)
+		{
+			LandmarkObs predict = predicted[j];
+			double current_dist = dist(observation.x, observation.y, predict.x, predict.y);
 
+			// predicted landmark most close to the current observed landmark
+			if (current_dist < min_dist)
+			{
+				mapId = current_dist;
+				min_dist = current_dist;
+			}
+		}
+		observations[i].id = mapId;
+	}
 }
 
 // Update the weights of each particle using a mult-variate Gaussian distribution.
@@ -139,12 +160,33 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], c
 	}
 }
 
+// Resample particles with replacement with probability proportional to their weight. 
+// std::discrete_distribution helpful -  http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 void ParticleFilter::resample() 
 {
-	// TODO: Resample particles with replacement with probability proportional to their weight. 
-	// NOTE: You may find std::discrete_distribution helpful here.
-	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
+	vector<double> total_weights;
+	for (int i = 0; i < num_particles; i++)
+		total_weights.push_back(particles[i].weight);
+	double max_weight = *max_element(total_weights.begin(), total_weights.end());
 
+	// generate random index 
+	uniform_int_distribution<int> uniintdist(0, num_particles - 1);
+	uniform_real_distribution<double> unirealdist(0.0, max_weight);
+	auto index = uniintdist(gen);
+
+	vector<Particle> new_particles;
+	double beta = 0;
+	for (int i = 0; i < num_particles; i++) 
+	{
+		beta += unirealdist(gen) * 2.0;
+		while (beta > weights[index]) 
+		{
+			beta -= weights[index];
+			index = (index + 1) % num_particles;
+		}
+		new_particles.push_back(particles[index]);
+	}
+	particles = new_particles;
 }
 
 Particle ParticleFilter::SetAssociations(Particle particle, std::vector<int> associations, std::vector<double> sense_x, std::vector<double> sense_y)
