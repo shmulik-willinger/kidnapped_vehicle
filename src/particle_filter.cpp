@@ -22,9 +22,9 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
 {
 	num_particles = 100;
 
-	normal_distribution<double> dist_x(x, std[0]);
-	normal_distribution<double> dist_y(y, std[1]);
-	normal_distribution<double> dist_theta(theta, std[2]);
+	normal_distribution<double> dist_x(0, std[0]);
+	normal_distribution<double> dist_y(0, std[1]);
+	normal_distribution<double> dist_theta(0, std[2]);
 
 	particles.resize(num_particles);
 	for (int i = 0; i < num_particles; i++)
@@ -88,7 +88,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 			// predicted landmark most close to the current observed landmark
 			if (current_dist < min_dist)
 			{
-				mapId = current_dist;
+				mapId = predict.id;
 				min_dist = current_dist;
 			}
 		}
@@ -136,26 +136,27 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], c
 
 		int transform_size = transformed.size();
 		int predictions_size = predictions.size();
-
+		particles[i].weight = 1.0;
 		for (int j = 0; j < transform_size; j++)
 		{
+			float x_prediction = 0, y_prediction = 0;
 			for (int k = 0; k < predictions_size; k++)
 			{
 				if (predictions[k].id == transformed[j].id)
 				{
-					float x_transform = transformed[j].x;
-					float y_transform = transformed[j].y;
-
-					float x_prediction = predictions[k].x;
-					float y_prediction = predictions[k].y;
-
-					float x_landmark = std_landmark[0];
-					float y_landmark = std_landmark[1];
-
-					// weight for the observation with multivariate Gaussian
-					particles[i].weight *= (1 / (2 * M_PI * x_landmark * y_landmark)) * exp(-(pow(x_prediction - x_transform, 2) / (2 * pow(x_landmark, 2)) + (pow(y_prediction - y_transform, 2) / (2 * pow(y_landmark, 2)))));
+					x_prediction = predictions[k].x;
+					y_prediction = predictions[k].y;
 				}
 			}
+			float x_transform = transformed[j].x;
+			float y_transform = transformed[j].y;
+
+			float x_landmark = std_landmark[0];
+			float y_landmark = std_landmark[1];
+
+			// weight for the observation with multivariate Gaussian
+			particles[i].weight *= (1 / (2 * M_PI * x_landmark * y_landmark)) * exp(-(pow(x_prediction - x_transform, 2) / (2 * pow(x_landmark, 2)) + (pow(y_prediction - y_transform, 2) / (2 * pow(y_landmark, 2)))));
+
 		}
 	}
 }
@@ -179,9 +180,9 @@ void ParticleFilter::resample()
 	for (int i = 0; i < num_particles; i++) 
 	{
 		beta += unirealdist(gen) * 2.0;
-		while (beta > weights[index]) 
+		while (beta > total_weights[index])
 		{
-			beta -= weights[index];
+			beta -= total_weights[index];
 			index = (index + 1) % num_particles;
 		}
 		new_particles.push_back(particles[index]);
