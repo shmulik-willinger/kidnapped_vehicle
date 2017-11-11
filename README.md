@@ -5,13 +5,13 @@
 Overview
 ---
 
-In this project the goal is to implement a 2 dimensional particle filter in C++. The particle filter will be given a map and some initial localization information (analogous to what a GPS would provide). At each time step the filter will also get observation and control data, and its goal is to find the kidnapped vehicle based on this data.
+In this project the goal is to implement a **2 dimensional particle filter** in C++. The particle filter will be given a map and some initial localization information (analogous to what a GPS would provide). At each time step the filter will also get observation and control data, and its goal is to find the kidnapped vehicle based on this data.
 
 The communication between the project and the simulator is done using WebSocket.
 
 This project involves the Udacity Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases). The simulator provides the script the noisy position data, vehicle controls, and noisy observations. the script feeds back the best particle state.
 
-The WebSocket and other initial info regarding dependencies  installation can be found  [here](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project)
+The WebSocket and other initial info regarding dependencies  installation can be found  [here](https://github.com/udacity/CarND-Kidnapped-Vehicle-Project)
 
 The Particle Filter Algorithm Flowchart:
 ![]( https://github.com/shmulik-willinger/kidnapped_vehicle/blob/master/readme_img/Particle_Flowchart.jpg?raw=true)
@@ -131,4 +131,6 @@ The particle filter met the requirements, and after 100 seconds the simulator ge
 
 The green lines below are the car's observations of surrounding landmarks
 
-Below is a video of what it looks like when the simulator successfully is able to track the car to a particle:
+The video below shows what it looks like when the simulator successfully is able to track the car to a particle:
+
+[![video output](https://github.com/shmulik-willinger/kidnapped_vehicle/blob/master/readme_img/particle_simulator.gif)]
