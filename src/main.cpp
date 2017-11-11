@@ -127,8 +127,8 @@ int main()
 			}
 			weight_sum += particles[i].weight;
 		  }
-		  cout << "highest w " << highest_weight << endl;
-		  cout << "average w " << weight_sum/num_particles << endl;
+		  //cout << "highest w " << highest_weight << endl;
+		  //cout << "average w " << weight_sum/num_particles << endl;
 
           json msgJson;
           msgJson["best_particle_x"] = best_particle.x;
@@ -178,7 +178,7 @@ int main()
   });
 
   int port = 4567;
-  if (h.listen("127.0.0.1", port))
+  if (h.listen(port))
   {
     std::cout << "Listening to port " << port << std::endl;
   }
